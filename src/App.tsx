@@ -80,9 +80,8 @@ function AppContent() {
           if (pendingShopName) newProfile.shop_name = pendingShopName;
           if (pendingPhoneNumber) newProfile.phone_number = pendingPhoneNumber;
           
-          // NOTE: We assume the column is 'name', but the app was trying 'full_name'
-          // We'll try 'name' first as it's the standard for this app's UI
-          newProfile.name = pendingFullName || user.user_metadata?.full_name || 'System_User';
+          // Use 'full_name' as defined in the schema
+          newProfile.full_name = pendingFullName || user.user_metadata?.full_name || 'System_User';
 
           const { data: created, error: createError } = await supabase
             .from('profiles')
@@ -108,7 +107,8 @@ function AppContent() {
 
         if (data) {
           setUserRole(data.role as 'dealer' | 'customer');
-          setUsername(data.username || (data as any).name || 'System_User');
+          // Prioritize full_name from schema, fallback to username
+          setUsername(data.full_name || data.username || 'System_User');
         }
         setRoleLoading(false);
       } else {
